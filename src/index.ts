@@ -1,33 +1,31 @@
 const COMMENTS_URL = "https://jsonplaceholder.typicode.com/comments";
 
 type Comment = {
-  postId?: number;
+  postId: number;
   id: number;
-  name?: string;
+  name: string;
   email: string;
-  body?: string;
+  body: string;
 };
 
-const getData = async (url: string) => {
+const getData = async <T>(url: string): Promise<T> => {
   try {
     const response = await fetch(url);
-    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch data");
+    }
+
+    const data: T = await response.json();
     return data;
   } catch (error) {
     console.error("Error fetching data:", error);
+    throw error;
   }
 };
 
-getData(COMMENTS_URL).then((data: Comment[]) => {
-  for (const comment of data) {
-    console.log(`ID: ${comment.id}, Email: ${comment.email}`);
-  }
+getData<Comment[]>(COMMENTS_URL).then((data) => {
+  data.forEach(({ id, email }) => {
+    console.log(`ID: ${id}, Email: ${email}`);
+  });
 });
-
-/**
- * ID: 1, Email: Eliseo...
- * ID: 2, Email: Jayne_Kuhic...
- * ID: 3, Email: Nikita...
- * ID: 4, Email: Lew...
- * ...
- */
